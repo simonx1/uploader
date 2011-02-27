@@ -1,0 +1,6 @@
+<% if @upload %>
+  <%= @upload.description || 'Description' %>: <%= Rails.root + @upload.ufile.url %>
+  <h3>Select next file:</h3>
+<% else %>
+  Upload failed!!!
+<% end %>

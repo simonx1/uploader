@@ -1,0 +1,59 @@
+<% content_for :head do %>
+  <%= stylesheet_link_tag('jquery.fileupload-ui') %>
+<% end %>
+
+<% content_for :scripts do%>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"></script>
+<%= javascript_include_tag 'jquery.fileupload', 'jquery.fileupload-ui' %>
+	
+<script type="text/javascript" charset="utf-8">	
+    $(function () {
+        $('.upload').fileUploadUI({
+            uploadTable: $('.upload_files'),
+            downloadTable: $('.download_files'),
+            buildUploadRow: function (files, index) {
+                var file = files[index];
+                return $('<tr><td>' + file.name + '<\/td>' +
+                        '<td class="file_upload_progress"><div><\/div><\/td>' +
+                        '<td class="file_upload_cancel">' +
+                        '<div class="ui-state-default ui-corner-all ui-state-hover" title="Cancel">' +
+                        '<span class="ui-icon ui-icon-cancel">Cancel<\/span>' +
+                        '<\/div><\/td><\/tr>');
+            },
+            onComplete: function (event, files, index, xhr, handler) {
+                $.ajax({
+                      type: "GET",
+                      url: "/remote/show_uploaded/",
+                      success: function(data){
+                            var form = $('#desc_update');
+                            $.ajax({
+                                  type: "POST",
+                                  url: form[0].action,
+                                  data: form.serialize(),
+                                  success: function(data){
+                                    $('#upload_description').val('');
+                                  }
+                                });
+                      }
+                });
+            }
+        });
+    });
+</script>
+<% end %>
+
+<div class="files">
+        <div id="status"><h3>Select file:</h3></div>
+	<%= form_for @upload, :html => { :class => "upload", :multipart => true } do |f| %>
+			<%= f.file_field :ufile %>
+	  	<div>Upload file</div>
+	<% end %>
+        <form id="desc_update" action="/remote/desc_update">
+          <input type="hidden" name="upload_id" id="upload_id" value="" />
+          <p>File description: <input type="text" size="30" name="description" id="upload_description" /></p>
+        </form>
+	<table class="upload_files"></table>
+	<table class="download_files"></table>
+</div>
+	
